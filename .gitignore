@@ -1,2 +1,4 @@
 materials/source/
 work/remotion/public/src/
+final/*.mp4
+!final/*_phone.mp4
