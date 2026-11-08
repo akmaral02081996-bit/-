@@ -101,6 +101,11 @@ export const CUES: Cue[] = [
     below: { words: "тыныштықты жақсы көретін сияқтымыз", at: 14.68, step: 0.4 },
   },
   {
+    from: 17.64, to: 18.96, top: 300,
+    lines: [{ text: "солай", at: 17.64, color: "white", size: 200 }],
+    below: { words: "мен өзімнің", at: 18.36, step: 0.18 },
+  },
+  {
     from: 18.96, to: 22.22, top: 300,
     lines: [],
     stickers: [
