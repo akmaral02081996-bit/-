@@ -35,3 +35,12 @@ npx remotion still ThreeTest out/three.png --frame=20      # проверка 3D
 Для 3D включён программный WebGL (`swangle`) в `remotion.config.ts`; тяжёлое 3D рендерить с `--concurrency=2`.
 
 Remotion бесплатен для частных лиц и команд до 3 человек; крупнее — нужна лицензия: https://www.remotion.dev/license
+
+## Распознавание речи (тайминг слов для титров)
+
+```bash
+pip install faster-whisper
+python3 work/tools/transcribe.py materials/<видео>.mp4 work/words.json medium
+```
+Модель (~1,5 ГБ) скачивается с huggingface.co при первом запуске. В облаке Claude Code для этого нужна среда
+`akmaral-motion` (в ней открыты huggingface.co и его хранилища).
