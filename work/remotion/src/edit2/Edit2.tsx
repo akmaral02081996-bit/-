@@ -59,6 +59,7 @@ export const Edit2: React.FC = () => {
       <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 28%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.38) 78%, rgba(0,0,0,0.2) 100%)" }} />
       {ready ? active.map((b, i) => <AbsoluteFill key={i}>{b.items.map((it, j) => <ItemView key={j} it={it} to={b.to} />)}</AbsoluteFill>) : null}
       <Audio src={staticFile("src2/main.mp4")} />
+      <Audio src={staticFile("sfx/music2.wav")} volume={0.09} />
       {BLOCKS.flatMap((b) => b.items).map((it, i) =>
         it.kind === "script" ? (
           <Sequence key={i} from={Math.round(it.at * FPS)} durationInFrames={90}><Audio src={staticFile("sfx/chime.wav")} volume={0.22} /></Sequence>
