@@ -19,20 +19,20 @@ export const Icon: React.FC<{ kind: "bulb" | "sun"; at: number; x: number; y: nu
         <g>
           {[...Array(7)].map((_, i) => {
             const a = (-150 + i * 20) * (Math.PI / 180);
-            return <line key={i} x1={100 + Math.cos(a) * 78} y1={88 + Math.sin(a) * 78} x2={100 + Math.cos(a) * 98} y2={88 + Math.sin(a) * 98} stroke={C.yellow} strokeWidth={9} strokeLinecap="round" opacity={glow} />;
+            return <line key={i} x1={100 + Math.cos(a) * 78} y1={88 + Math.sin(a) * 78} x2={100 + Math.cos(a) * 98} y2={88 + Math.sin(a) * 98} stroke={C.red} strokeWidth={9} strokeLinecap="round" opacity={glow} />;
           })}
-          <circle cx={100} cy={88} r={54} fill={C.yellow} />
-          <rect x={76} y={132} width={48} height={16} rx={4} fill="#EDEDED" />
-          <rect x={80} y={150} width={40} height={14} rx={4} fill="#CFCFCF" />
+          <circle cx={100} cy={88} r={54} fill={C.white} />
+          <rect x={76} y={132} width={48} height={16} rx={4} fill={C.red} />
+          <rect x={80} y={150} width={40} height={14} rx={4} fill={C.red} />
           <text x={100} y={112} textAnchor="middle" fontFamily="Oswald" fontWeight={700} fontSize={70} fill={C.red}>?</text>
         </g>
       ) : (
         <g>
           {[...Array(12)].map((_, i) => {
             const a = (i * 30 + local * 0.8) * (Math.PI / 180);
-            return <line key={i} x1={100 + Math.cos(a) * 62} y1={100 + Math.sin(a) * 62} x2={100 + Math.cos(a) * 88} y2={100 + Math.sin(a) * 88} stroke={C.yellow} strokeWidth={9} strokeLinecap="round" />;
+            return <line key={i} x1={100 + Math.cos(a) * 62} y1={100 + Math.sin(a) * 62} x2={100 + Math.cos(a) * 88} y2={100 + Math.sin(a) * 88} stroke={C.white} strokeWidth={9} strokeLinecap="round" />;
           })}
-          <circle cx={100} cy={100} r={48} fill={C.yellow} />
+          <circle cx={100} cy={100} r={48} fill={C.red} />
         </g>
       )}
     </svg>

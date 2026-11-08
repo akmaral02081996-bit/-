@@ -31,52 +31,50 @@ export const SHOTS: Shot[] = [
 export type Line = {
   text: string;
   at: number;
-  color: "pink" | "red" | "white";
+  color: "red" | "white";
   size?: number; // макс. размер, подгоняется под ширину
   indent?: number;
 };
+type Words = { words: string; at: number; step?: number };
 export type Cue = {
   from: number;
   to: number;
   top: number; // верх блока, px
   lines: Line[];
-  ru?: { words: string; at: number; step?: number };
-  kzSmall?: { words: string; at: number; step?: number };
+  above?: Words; // мелкая строка над заголовком
+  below?: Words; // мелкая строка под заголовком
   icon?: { kind: "bulb" | "sun"; at: number; x: number; y: number };
-  stickers?: { text: string; ru: string; at: number; rot: number }[];
+  stickers?: { text: string; at: number; rot: number }[];
   behindRidge?: boolean; // текст за хребтом (в мировых координатах)
 };
 
+// Только казахский; цвета — белый и красный, чередуются по строкам.
 export const CUES: Cue[] = [
   {
     from: 0.03, to: 1.6, top: 300,
-    lines: [{ text: "идея?", at: 0.03, color: "pink", size: 300 }],
-    ru: { words: "откуда её брать?", at: 0.35, step: 0.2 },
+    lines: [{ text: "идея?", at: 0.03, color: "red", size: 300 }],
     icon: { kind: "bulb", at: 0.2, x: 900, y: 300 },
   },
   {
     from: 1.62, to: 3.3, top: 300,
     lines: [
       { text: "Оқырмандарым", at: 1.62, color: "white" },
-      { text: "әріптестерім", at: 2.5, color: "white", indent: 40 },
+      { text: "әріптестерім", at: 2.5, color: "red", indent: 40 },
     ],
-    ru: { words: "мои читатели и коллеги", at: 1.7, step: 0.18 },
   },
   {
     from: 3.34, to: 6.4, top: 290,
     lines: [
-      { text: "Идеяны", at: 4.14, color: "pink" },
-      { text: "қайдан", at: 4.7, color: "pink", indent: 120 },
-      { text: "аласыз?", at: 5.08, color: "pink", indent: 40 },
+      { text: "Идеяны", at: 4.14, color: "white" },
+      { text: "қайдан", at: 4.7, color: "red", indent: 120 },
+      { text: "аласыз?", at: 5.08, color: "white", indent: 40 },
     ],
-    ru: { words: "откуда вы берёте идеи?", at: 4.2, step: 0.2 },
-    icon: { kind: "bulb", at: 3.34, x: 800, y: 300 },
+    icon: { kind: "bulb", at: 3.34, x: 860, y: 300 },
   },
   {
     from: 7.06, to: 8.95, top: 300,
-    kzSmall: { words: "менің идея алатын жерім", at: 7.06, step: 0.22 },
+    above: { words: "менің идея алатын жерім", at: 7.06, step: 0.22 },
     lines: [{ text: "осындай", at: 8.16, color: "red", size: 210 }],
-    ru: { words: "моё место для идей — вот оно", at: 7.2, step: 0.16 },
   },
   {
     from: 8.98, to: 10.3, top: 0, behindRidge: true,
@@ -84,58 +82,54 @@ export const CUES: Cue[] = [
   },
   {
     from: 9.1, to: 10.3, top: 330, lines: [],
-    kzSmall: { words: "тауларға келіп", at: 9.1, step: 0.5 },
-    ru: { words: "приезжаю в горы", at: 9.2, step: 0.2 },
+    below: { words: "тауларға келіп осылай", at: 9.1, step: 0.35 },
   },
   {
     from: 10.36, to: 12.6, top: 300,
-    lines: [{ text: "таза ауа", at: 10.36, color: "pink", size: 200 }],
-    kzSmall: { words: "серуендеп · демалып", at: 10.88, step: 0.94 },
-    ru: { words: "свежий воздух, прогулка, отдых", at: 10.5, step: 0.3 },
+    lines: [{ text: "таза ауа", at: 10.36, color: "white", size: 200 }],
+    below: { words: "серуендеп, демалып", at: 10.88, step: 0.94 },
   },
   {
     from: 12.62, to: 13.6, top: 300,
+    above: { words: "миыма", at: 12.62 },
     lines: [{ text: "тыныштық", at: 12.62, color: "red", size: 200 }],
-    ru: { words: "тишина для головы", at: 12.7, step: 0.15 },
+    below: { words: "беремін", at: 13.02 },
   },
   {
     from: 13.94, to: 17.6, top: 280,
-    lines: [{ text: "мұғалімдер", at: 13.94, color: "pink", size: 190 }],
-    kzSmall: { words: "тыныштықты жақсы көреміз", at: 15.36, step: 0.3 },
-    ru: { words: "мы, учителя, похоже, любим тишину", at: 14.1, step: 0.28 },
+    lines: [{ text: "мұғалімдер", at: 13.94, color: "white", size: 190 }],
+    below: { words: "тыныштықты жақсы көретін сияқтымыз", at: 14.68, step: 0.4 },
   },
   {
     from: 18.96, to: 22.22, top: 300,
     lines: [],
     stickers: [
-      { text: "жұмыс", ru: "работа", at: 18.96, rot: -3 },
-      { text: "мектеп", ru: "школа", at: 19.86, rot: 2.5 },
-      { text: "блог", ru: "блог", at: 21.66, rot: -1.5 },
+      { text: "жұмыс", at: 18.96, rot: -3 },
+      { text: "мектеп", at: 19.86, rot: 2.5 },
+      { text: "блог", at: 21.66, rot: -1.5 },
     ],
   },
   {
     from: 22.22, to: 23.25, top: 300,
     lines: [{ text: "шабыт", at: 22.22, color: "red", size: 260 }],
-    ru: { words: "отсюда — вдохновение", at: 22.3, step: 0.15 },
   },
   {
     from: 23.32, to: 25.9, top: 300,
-    lines: [{ text: "керемет", at: 23.32, color: "pink", size: 220 }],
-    ru: { words: "обожаю отдыхать на свежем воздухе", at: 23.45, step: 0.22 },
+    lines: [{ text: "керемет", at: 23.32, color: "white", size: 220 }],
+    below: { words: "таза ауада демалуды жақсы көрем", at: 24.04, step: 0.3 },
   },
   {
     from: 25.96, to: 29.3, top: 300,
     lines: [{ text: "әттең...", at: 25.96, color: "white", size: 170 }],
-    stickers: [{ text: "1-сынып", ru: "первый класс", at: 27.32, rot: -2 }],
-    ru: { words: "жаль, в этом году у меня", at: 26.1, step: 0.2 },
+    stickers: [{ text: "1-сынып", at: 27.32, rot: -2 }],
     icon: { kind: "sun", at: 28.1, x: 880, y: 360 },
   },
   {
     from: 30.04, to: DURATION, top: 250,
     lines: [
-      { text: "күнде", at: 30.04, color: "red", size: 150 },
+      { text: "күнде", at: 30.04, color: "white", size: 150 },
       { text: "таңертең", at: 30.22, color: "red", size: 150, indent: 60 },
     ],
-    ru: { words: "приезжала бы сюда каждое утро", at: 30.3, step: 0.2 },
+    below: { words: "келіп жүрер едім", at: 30.78, step: 0.25 },
   },
 ];
