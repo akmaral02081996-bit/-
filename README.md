@@ -40,7 +40,7 @@ Remotion бесплатен для частных лиц и команд до 3 
 
 ```bash
 pip install faster-whisper
-python3 work/tools/transcribe.py materials/<видео>.mp4 work/words.json medium
+python3 work/tools/transcribe.py materials/<видео>.mp4 work/words.json medium ru   # для казахского: kk
 ```
 Модель (~1,5 ГБ) скачивается с huggingface.co при первом запуске. В облаке Claude Code для этого нужна среда
 `akmaral-motion` (в ней открыты huggingface.co и его хранилища).
