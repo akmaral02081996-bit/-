@@ -38,7 +38,7 @@ export const ScriptWrite: React.FC<{ text: string; at: number; dur?: number; siz
       style={{
         fontFamily: SCRIPT, fontSize: size, color: P.white, lineHeight: 1, whiteSpace: "nowrap", textShadow: SHADOW,
         transform: "scaleX(1.35) skewX(-12deg)", transformOrigin: "left center",
-        clipPath: `inset(-20% ${100 - k * 102}% -20% -2%)`, ...style,
+        paddingRight: "0.35em", clipPath: `inset(-30% ${100 - k * 112}% -30% -6%)`, ...style,
       }}
     >
       {text}
