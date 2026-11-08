@@ -36,15 +36,51 @@ def runs(mask):
         else: i += 1
     return out
 
+def vad_speech(a, sr):
+    """Речь по нейросетевому детектору Silero VAD (встроен в faster-whisper)."""
+    from faster_whisper.vad import VadOptions, get_speech_timestamps
+    ts = get_speech_timestamps(a, vad_options=VadOptions(threshold=0.35, min_silence_duration_ms=120, speech_pad_ms=40), sampling_rate=sr)
+    return [[t["start"] / sr, t["end"] / sr] for t in ts]
+
+def voiced(a, sr, floor, over=5, rmin=0.55, minlen=0.06):
+    """Голос по высоте тона: автокорреляция в диапазоне 75–450 Гц + энергия выше фона.
+    Ловит «ммм», «ааа», протяжные и затухающие окончания, которые пропускает VAD."""
+    win, hop = int(0.04 * sr), int(0.01 * sr)
+    lo, hi = sr // 450, sr // 75
+    n = (len(a) - win) // hop
+    flags = np.zeros(n, bool)
+    for i in range(n):
+        x = a[i * hop:i * hop + win]
+        e = 20 * np.log10(np.sqrt(np.mean(x ** 2)) + 1e-9)
+        if e < floor + over: continue
+        x = x - x.mean()
+        ac = np.correlate(x, x, "full")[win - 1:]
+        if ac[0] <= 0: continue
+        r = ac[lo:hi] / ac[0]
+        flags[i] = r.max() > rmin
+    # сглаживание: склеиваем разрывы < 0.08 с, убираем куски < 0.12 с
+    out = []
+    for s0, e0 in runs(flags):
+        if out and s0 - out[-1][1] < 0.08: out[-1][1] = e0
+        else: out.append([s0, e0])
+    return [r for r in out if r[1] - r[0] >= minlen]
+
 def plan_clip(video, words_path):
     a, sr = audio(video)
     dur = len(a) / sr
     m, db, floor = sound_mask(a, sr)
-    regs = runs(m)
-    # защищаем слова из распознавания (тихие окончания)
+    snd = runs(m)
+    # 1) основа: нейросетевой детектор речи + сильные голосовые звуки («ммм», «ааа»)
+    base = vad_speech(a, sr) + voiced(a, sr, floor, over=12, rmin=0.65, minlen=0.15)
+    # 2) слабые признаки (тихие окончания, вдох, начальные согласные) — только вплотную к основе (≤0.3 с)
+    weak = voiced(a, sr, floor) + [r for r in snd if r[1] - r[0] <= 0.5]
+    near = lambda r: any(-0.3 < b[0] - r[1] < 0.3 or -0.3 < r[0] - b[1] < 0.3 or (r[0] < b[1] and b[0] < r[1]) for b in base)
+    regs = base + [r for r in weak if near(r)]
+    # защищаем слова из распознавания (тихие окончания), но только там, где VAD тоже слышит речь рядом
     words = json.load(open(words_path))["words"]
-    for w in words:
-        regs.append([max(0, w["start"] - 0.03), min(dur, w["end"] + 0.03)])
+    vad = vad_speech(a, sr)
+    words = [w for w in words if any(r[0] - 0.3 <= w["start"] <= r[1] + 0.3 for r in vad)]
+    # слова из распознавания НЕ расширяют речь (Whisper растягивает их на паузы) — только для отчёта
     regs.sort()
     # склеиваем пересечения и микро-разрывы < 0.06 с, выбрасываем щелчки < 0.05 с
     merged = []

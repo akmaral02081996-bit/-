@@ -6,6 +6,14 @@ plan = json.load(open(sys.argv[1]))
 mp = dict(x.split("=", 1) for x in sys.argv[2:-1])
 out = sys.argv[-1]
 tmp = os.path.join(os.path.dirname(out), "segs"); os.makedirs(tmp, exist_ok=True)
+# выравниваем громкость клипов между собой (к −23 LUFS), чтобы не было скачков на стыках
+import re
+gain = {}
+for src in set(mp.values()):
+    r = subprocess.run(["ffmpeg", "-nostats", "-i", src, "-vn", "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
+    I = float(re.findall(r"I:\s+(-?[0-9.]+) LUFS", r)[-1])
+    gain[src] = -23.0 - I
+    print("gain", src, round(gain[src], 1), "dB")
 lst = []
 k = 0
 for p in plan:
@@ -14,7 +22,7 @@ for p in plan:
         d = e - s
         f = os.path.join(tmp, f"s{k:04d}.mov")
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{s:.3f}", "-i", src, "-t", f"{d:.3f}",
-                        "-af", f"afade=t=in:d=0.008,afade=t=out:st={max(0, d - 0.008):.3f}:d=0.008",
+                        "-af", f"volume={gain[src]:.2f}dB,afade=t=in:d=0.008,afade=t=out:st={max(0, d - 0.008):.3f}:d=0.008",
                         "-c:v", "libx264", "-preset", "fast", "-crf", "14", "-pix_fmt", "yuv420p", "-r", "25",
                         "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", f], check=True)
         lst.append(f); k += 1
