@@ -7,11 +7,11 @@ import numpy as np
 FPS = 25
 HOP = 0.01            # шаг анализа громкости, с
 OVER_FLOOR_DB = 8.0   # «звук» = громче шумового фона на 8 дБ (дыхание тоже проходит)
-KEEP_MAX = 0.35       # паузы до 0.35 с не трогаем (естественный ритм)
-THINK_MIN = 0.8       # внутри предложения режем только паузы от 0.8 с (задумался)
-PAD_AFTER = 0.12      # тишина после последнего звука фразы
-PAD_BEFORE = 0.08     # тишина перед началом следующей фразы
-PAD_THINK = (0.15, 0.10)  # для пауз внутри мысли оставляем чуть больше: 0.25 с
+KEEP_MAX = 0.30       # паузы до 0.30 с не трогаем (естественный ритм)
+THINK_MIN = 0.30      # паузы внутри фразы длиннее 0.30 с сокращаем до 0.25 с
+PAD_AFTER = 0.08      # тишина после последнего звука фразы (+0.04 с запаса VAD)
+PAD_BEFORE = 0.05     # тишина перед началом следующей фразы (+0.04 с запаса VAD)
+PAD_THINK = (0.10, 0.06)  # внутри фразы чуть больше
 LEAD, TAIL = 0.15, 0.25   # в начале и в конце каждого клипа
 
 def audio(path, sr=16000):
@@ -71,11 +71,13 @@ def plan_clip(video, words_path):
     m, db, floor = sound_mask(a, sr)
     snd = runs(m)
     # 1) основа: нейросетевой детектор речи + сильные голосовые звуки («ммм», «ааа»)
-    base = vad_speech(a, sr) + voiced(a, sr, floor, over=12, rmin=0.65, minlen=0.15)
+    base = vad_speech(a, sr) + voiced(a, sr, floor, over=10, rmin=0.6, minlen=0.15)
     # 2) слабые признаки (тихие окончания, вдох, начальные согласные) — только вплотную к основе (≤0.3 с)
-    weak = voiced(a, sr, floor) + [r for r in snd if r[1] - r[0] <= 0.5]
-    near = lambda r: any(-0.3 < b[0] - r[1] < 0.3 or -0.3 < r[0] - b[1] < 0.3 or (r[0] < b[1] and b[0] < r[1]) for b in base)
-    regs = base + [r for r in weak if near(r)]
+    def near(r, d):
+        return any(-d < b[0] - r[1] < d or -d < r[0] - b[1] < d or (r[0] < b[1] and b[0] < r[1]) for b in base)
+    weak_voice = voiced(a, sr, floor)                       # тихий голос: окончания, «ммм» — до 0.35 с от речи
+    weak_noise = [r for r in snd if r[1] - r[0] <= 0.35]   # вдох, согласные без тона — до 0.2 с от речи
+    regs = base + [r for r in weak_voice if near(r, 0.35)] + [r for r in weak_noise if near(r, 0.2)]
     # защищаем слова из распознавания (тихие окончания), но только там, где VAD тоже слышит речь рядом
     words = json.load(open(words_path))["words"]
     vad = vad_speech(a, sr)
@@ -112,6 +114,12 @@ def plan_clip(video, words_path):
         keep.append([s1 - pb, None])
         gaps.append({"at": round(e0, 2), "len": round(L, 2), "action": f"сокращена до {pa + pb:.2f}", "sentence": sent})
     keep[-1][1] = min(dur, merged[-1][1] + TAIL)
+    # не делаем микро-вырезов: если вырезалось бы меньше 0.25 с — склейку не делаем
+    merged_keep = []
+    for s_, e_ in keep:
+        if merged_keep and s_ - merged_keep[-1][1] < 0.25: merged_keep[-1][1] = e_
+        else: merged_keep.append([s_, e_])
+    keep = merged_keep
     # привязка к кадрам
     snapped = []
     for s, e in keep:
