@@ -1,4 +1,4 @@
-import { AbsoluteFill, Audio, OffthreadVideo, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Audio, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import "../style/fonts";
 import { HEAD } from "../style/fonts";
 import { C } from "../style/theme";
@@ -6,6 +6,7 @@ import { CUES, Cue } from "./data";
 import { cameraAt, ridgeAt } from "./camera";
 import { CueView, fitSize, useFontsReady } from "./Captions";
 import { Icon } from "./Icons";
+import { Sfx } from "./Sfx";
 
 // Текст «за горами»: живёт в координатах исходного кадра и обрезается линией хребта
 const BehindRidge: React.FC<{ cue: Cue; t: number }> = ({ cue, t }) => {
@@ -59,9 +60,8 @@ export const Main: React.FC = () => {
             </AbsoluteFill>
           ))
         : null}
-      <Sequence>
-        <Audio src={staticFile("src/main.mp4")} />
-      </Sequence>
+      <Audio src={staticFile("src/main.mp4")} />
+      <Sfx />
     </AbsoluteFill>
   );
 };
