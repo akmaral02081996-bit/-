@@ -47,7 +47,7 @@ const EV: Ev[] = [
 const NUMS = [
   { n: "1", at: 50.27, to: 56.0, img: "src5/p1_c.jpg" },
   { n: "2", at: 71.42, to: 75.0, img: "src5/p2_c.jpg" },
-  { n: "3", at: 94.08, to: 108.0, img: "src5/p3_c.jpg" },
+  { n: "3", at: 94.08, to: 104.5, img: "src5/p3_c.jpg" },
 ];
 
 // «Лупа» на щеке: увеличенный участок кожи в круге
@@ -63,6 +63,28 @@ const Magnifier: React.FC<{ t: number }> = ({ t }) => {
         <Sequence from={Math.round(16.0 * FPS)} layout="none"><OffthreadVideo src={staticFile("src5/sharp.mp4")} muted style={{ width: 1080 * Z, height: 1920 * Z }} /></Sequence>
       </div>
     </div>
+  );
+};
+
+// Вставки без звука поверх основного кадра (текст и стикер остаются сверху)
+type Broll = { src: string; from: number; at: number; to: number; zoom?: [number, number] };
+const BROLL: Broll[] = [
+  { src: "broll5/routine.mp4", from: 25.0, at: 8.0, to: 10.8, zoom: [1.0, 1.06] },   // «күтіміме назар салыңыздар» — сыворотка
+  { src: "broll5/flatlay.mp4", from: 0.0, at: 37.3, to: 40.6, zoom: [1.0, 1.08] },   // «диагностика жасап, күтім беретін» — лист ухода и средства
+  { src: "broll5/routine.mp4", from: 162.0, at: 45.6, to: 48.0, zoom: [1.04, 1.0] }, // «таңдап берген … топ-3» — средства в руках
+  { src: "broll5/routine.mp4", from: 2.0, at: 77.6, to: 81.8, zoom: [1.0, 1.05] },   // «увлажнять, әдемі етіп» — спрей
+  { src: "broll5/routine.mp4", from: 92.0, at: 105.5, to: 109.5, zoom: [1.0, 1.05] }, // «текстурасы … қалмайды» — крем точками
+  { src: "broll5/routine.mp4", from: 128.0, at: 109.6, to: 112.6, zoom: [1.05, 1.0] }, // «сіңіп кетеді, ақ дақ қалдырмайды» — втирает
+  { src: "broll5/routine.mp4", from: 165.0, at: 119.2, to: 122.0, zoom: [1.0, 1.05] }, // «сақтап алыңыздар» — все средства
+  { src: "broll5/routine.mp4", from: 140.0, at: 148.0, to: 151.0, zoom: [1.0, 1.05] }, // «әсер ететін өнімдер» — сияющая кожа
+];
+const BrollView: React.FC<{ b: Broll; t: number }> = ({ b, t }) => {
+  const fade = Math.min(interpolate(t, [b.at, b.at + 0.12], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }), interpolate(t, [b.to - 0.12, b.to], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+  const z = interpolate(t, [b.at, b.to], b.zoom ?? [1, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <AbsoluteFill style={{ opacity: fade }}>
+      <OffthreadVideo src={staticFile(b.src)} startFrom={Math.round(b.from * FPS)} muted style={{ width: 1080, height: 1920, transform: `scale(${z})` }} />
+    </AbsoluteFill>
   );
 };
 
@@ -86,6 +108,11 @@ export const Edit5: React.FC = () => {
       <AbsoluteFill style={{ transform: c.transform, transformOrigin: "0 0" }}>
         <OffthreadVideo src={staticFile("src5/main.mp4")} muted style={{ width: 1080, height: 1920 }} />
       </AbsoluteFill>
+      {BROLL.map((b, i) => (
+        <Sequence key={`b${i}`} from={Math.round(b.at * FPS)} durationInFrames={Math.round((b.to - b.at) * FPS)} layout="none">
+          <BrollView b={b} t={t} />
+        </Sequence>
+      ))}
       {ready ? (
         <>
           <Magnifier t={t} />
