@@ -12,3 +12,6 @@ final/unboxing-subtitles-*
 materials/source4/
 materials/broll/
 work/remotion/public/broll/
+materials/source5/
+work/v5/*.mov
+work/v*/norm*.mov

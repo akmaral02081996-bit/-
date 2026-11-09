@@ -4,7 +4,7 @@
 import json, subprocess, sys, os
 import numpy as np
 
-FPS = 25
+FPS = 30
 HOP = 0.01            # шаг анализа громкости, с
 OVER_FLOOR_DB = 8.0   # «звук» = громче шумового фона на 8 дБ (дыхание тоже проходит)
 KEEP_MAX = 0.30       # паузы до 0.30 с не трогаем (естественный ритм)
