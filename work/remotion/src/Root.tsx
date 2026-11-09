@@ -8,6 +8,8 @@ import { Edit2 } from "./edit2/Edit2";
 import { StyleTest3 } from "./style3/StyleTest3";
 import { Edit3 } from "./edit3/Edit3";
 import { StyleTest4 } from "./style4/StyleTest4";
+import { Edit5 } from "./edit5/Edit5";
+import * as D5 from "./edit5/Edit5";
 import * as D3 from "./edit3/Edit3";
 import * as D2 from "./edit2/data";
 import { FPS, DURATION } from "./edit/data";
@@ -24,6 +26,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="StyleTest3" component={StyleTest3} durationInFrames={324} fps={60} width={1080} height={1920} />
       <Composition id="Edit3" component={Edit3} durationInFrames={Math.round(D3.DURATION * D3.FPS)} fps={D3.FPS} width={1080} height={1920} />
       <Composition id="StyleTest4" component={StyleTest4} durationInFrames={210} fps={25} width={1080} height={1920} />
+      <Composition id="Edit5" component={Edit5} durationInFrames={Math.round(D5.DURATION * D5.FPS)} fps={D5.FPS} width={1080} height={1920} />
     </>
   );
 };

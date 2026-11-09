@@ -23,7 +23,7 @@ for p in plan:
         f = os.path.join(tmp, f"s{k:04d}.mov")
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{s:.3f}", "-i", src, "-t", f"{d:.3f}",
                         "-af", f"volume={gain[src]:.2f}dB,afade=t=in:d=0.008,afade=t=out:st={max(0, d - 0.008):.3f}:d=0.008",
-                        "-c:v", "libx264", "-preset", "fast", "-crf", "14", "-pix_fmt", "yuv420p", "-r", "25",
+                        "-c:v", "libx264", "-preset", "fast", "-crf", "14", "-pix_fmt", "yuv420p", "-r", os.environ.get("CUT_FPS", "25"),
                         "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", f], check=True)
         lst.append(f); k += 1
 with open(os.path.join(tmp, "list.txt"), "w") as fh:

@@ -93,3 +93,58 @@ export const FeatherCard: React.FC<{ at: number; to: number; x: number; y: numbe
     </div>
   );
 };
+
+// Открытая пудреница с кисточкой: слово на зеркале, сменяется под голос
+export const CompactWord: React.FC<{ words: { w: string; t: number }[]; x: number; y: number; size?: number; hideIn?: [number, number][] }> = ({ words, x, y, size = 250, hideIn = [] }) => {
+  const { t, fps } = useT();
+  const cur = [...words].reverse().find((o) => t >= o.t);
+  if (!cur || hideIn.some(([a, b]) => t >= a && t < b)) return null;
+  const idx = words.indexOf(cur);
+  const local = t - cur.t;
+  const bounce = spring({ frame: Math.round(local * fps), fps, config: { damping: 9, stiffness: 320, mass: 0.5 } });
+  const wob = Math.sin(t * 2.2) * 2.5;
+  const brushRot = -28 + Math.sin(t * 3.1) * 4;
+  return (
+    <div style={{ position: "absolute", left: x - size / 2, top: y - size / 2, width: size, height: size * 1.05, transform: `rotate(${wob}deg) scale(${0.94 + 0.06 * bounce})` }}>
+      <svg viewBox="0 0 200 210" width={size} height={size * 1.05} style={{ position: "absolute", inset: 0, overflow: "visible", filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.22))" }}>
+        {/* крышка с зеркалом */}
+        <ellipse cx={100} cy={62} rx={78} ry={52} fill="#F2B8CF" stroke="#D987AA" strokeWidth={3} />
+        <ellipse cx={100} cy={62} rx={64} ry={41} fill="#FFF4F8" stroke="#E8A9C4" strokeWidth={2} />
+        <path d="M60 46 Q 78 34 98 36" stroke="#ffffff" strokeWidth={5} strokeLinecap="round" fill="none" opacity={0.9} />
+        {/* петля */}
+        <rect x={86} y={108} width={28} height={10} rx={4} fill="#D987AA" />
+        {/* основание с пудрой */}
+        <ellipse cx={100} cy={150} rx={80} ry={50} fill="#F2B8CF" stroke="#D987AA" strokeWidth={3} />
+        <ellipse cx={100} cy={146} rx={64} ry={38} fill="#F5D3B7" stroke="#E6B894" strokeWidth={2} />
+        <ellipse cx={92} cy={140} rx={30} ry={14} fill="#F9E2CF" opacity={0.8} />
+        {[...Array(9)].map((_, i) => <circle key={i} cx={70 + ((i * 37) % 60)} cy={132 + ((i * 23) % 26)} r={1.6} fill="#fff" opacity={0.8} />)}
+      </svg>
+      {/* кисточка */}
+      <svg viewBox="0 0 60 160" width={size * 0.26} height={size * 0.7} style={{ position: "absolute", left: size * 0.86, top: size * 0.32, transform: `rotate(${brushRot}deg)`, transformOrigin: "50% 90%", overflow: "visible" }}>
+        <rect x={24} y={70} width={12} height={84} rx={6} fill="#C77D9C" />
+        <rect x={20} y={60} width={20} height={16} rx={3} fill="#E9C46A" />
+        <path d="M30 4 C 10 18 12 52 20 62 L40 62 C 48 52 50 18 30 4 Z" fill="#F7D9C4" stroke="#E5B896" strokeWidth={2} />
+        <path d="M30 6 C 24 24 24 44 28 60" stroke="#fff" strokeWidth={2} opacity={0.7} fill="none" />
+      </svg>
+      {/* слово на зеркале */}
+      <div
+        key={idx}
+        style={{
+          position: "absolute", left: -30, right: -30, top: size * 0.2, textAlign: "center",
+          fontFamily: SANS, fontWeight: 700, fontSize: size * Math.min(0.135, 1.05 / Math.max(1, cur.w.length)), color: "#B04E7E", letterSpacing: "0.01em",
+          textShadow: "0 1px 0 #fff", transform: `scale(${0.85 + 0.15 * bounce})`, whiteSpace: "nowrap",
+        }}
+      >
+        {cur.w.replace(/[.,!?;:«»"]+/g, "")}
+      </div>
+    </div>
+  );
+};
+
+// Белая большая цифра с засечками
+export const BigNum: React.FC<{ n: string; at: number; to: number; x: number; y: number; size: number }> = ({ n, at, to, x, y, size }) => {
+  const { t, fps } = useT();
+  if (t < at || t >= to) return null;
+  const k = spring({ frame: Math.round((t - at) * fps), fps, config: { damping: 12, stiffness: 160 } });
+  return <div style={{ position: "absolute", left: x, top: y, fontFamily: SERIF, fontWeight: 700, fontSize: size, color: K.white, lineHeight: 1, opacity: k, transform: `translateY(${(1 - k) * 40}px)`, textShadow: SH }}>{n}</div>;
+};

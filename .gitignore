@@ -15,3 +15,8 @@ work/remotion/public/broll/
 materials/source5/
 work/v5/*.mov
 work/v*/norm*.mov
+work/remotion/public/src5/
+final/makeup-*
+work/*/segs/
+work/v5/*.wav
+work/v5/*.mov
